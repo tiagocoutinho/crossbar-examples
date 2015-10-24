@@ -4,9 +4,7 @@
 import re
 import sys
 import argparse
-import pygame
 import os
-import treq
 import pi_switch
 
 from twisted.python import log
