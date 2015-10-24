@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Raspberry Pi Power Outlet Switch</title>
+</head>
+<body>
+   <h1>
+      Raspberry Pi Power Outlet Switch
+   </h1>
+
+   <button id="toggle">Toggle Outlet</button>
+
+   <script src="http://autobahn.s3.amazonaws.com/autobahnjs/latest/autobahn.min.jgz"></script>
+   <script>
+      var session = null;
+
+      // the WAMP connection to the Router
+      //
+      var connection = new autobahn.Connection({
+         url: 'ws://demo.crossbar.io:8080', // replace with URL of WAMP router if this doesn't serve the file
+         realm: "realm1"
+      });
+
+
+      // fired when connection is established and session attached
+      //
+      connection.onopen = function (sess, details) {
+
+         session = sess;
+         var state = "off";
+
+         console.log("connected");
+
+         var toggle = function() {
+            console.log("toggle hit");
+
+            if (state === "on") {
+               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", ["off"]);
+               state = "off";
+            } else {
+               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", ["on"]);
+               state = "on";
+            }
+         }
+
+         
+
+         document.getElementById("toggle").addEventListener("click", toggle);
+
+         console.log("post");
+
+      };
+
+      // fired when connection was lost (or could not be established)
+      //
+      connection.onclose = function (reason, details) {
+
+         console.log("Connection lost: " + reason);
+
+      }
+
+      // now actually open the connection
+      //
+      connection.open();
+
+   </script>
+</body>
+</html>
