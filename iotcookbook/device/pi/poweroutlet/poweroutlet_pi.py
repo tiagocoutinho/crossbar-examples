@@ -5,7 +5,7 @@ import re
 import sys
 import argparse
 import os
-sudimport pi_switch
+import pi_switch
 
 from twisted.python import log
 from twisted.internet.utils import getProcessOutput
