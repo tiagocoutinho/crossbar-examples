@@ -5,7 +5,7 @@ import re
 import sys
 import argparse
 import os
-import pi_switch
+sudimport pi_switch
 
 from twisted.python import log
 from twisted.internet.utils import getProcessOutput
@@ -37,8 +37,6 @@ class PowerOutletSwitcher(ApplicationSession):
         sender = pi_switch.RCSwitchA("11111", "00010")
         sender.enableTransmit(0) # WiringPi pin 0 = pin 11 on the Pi 2
 
-        yield self.register(switch_outlet, u'io.crossbar.examples.iot.devices.pi.poweroutlet.switch')
-
         def switch_outlet(state):
             if state == "on":
                 sender.switchOn()
@@ -46,6 +44,9 @@ class PowerOutletSwitcher(ApplicationSession):
                 sender.switchOff()
             else:
                 print("received unknown state to switch to", state)
+
+
+        yield self.register(switch_outlet, u'io.crossbar.examples.iot.devices.pi.poweroutlet.switch')
 
 
         # # register methods on this object for remote calling via WAMP
