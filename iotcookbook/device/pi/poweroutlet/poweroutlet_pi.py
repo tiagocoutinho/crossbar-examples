@@ -33,11 +33,29 @@ class PowerOutletSwitcher(ApplicationSession):
         self._id = extra['id']
 
 
-        #Basic Version - only a single outlet
-        sender = pi_switch.RCSwitchA("11111", "00010")
-        sender.enableTransmit(0) # WiringPi pin 0 = pin 11 on the Pi 2
+        system_code = "11111" # the system code set as the first 5 dip switches on the ten-switch adapters we're using
 
-        def switch_outlet(state):
+        # #Basic Version - only a single outlet
+        # sender = pi_switch.RCSwitchA("11111", "00010") # system code, adapter code
+        # sender.enableTransmit(0) # WiringPi pin 0 = pin 11 on the Pi 2
+
+        # def switch_outlet(state):
+        #     if state == "on":
+        #         sender.switchOn()
+        #     elif state == "off":
+        #         sender.switchOff()
+        #     else:
+        #         print("received unknown state to switch to", state)
+
+
+        #More adapters
+        adapter_codes = ["10000", "01000", "00100", "00010", "00001"]
+
+        def switch_outlet(adapter, state):
+            
+            sender = pi_switch.RCSwitchA(system_code, adapter_codes[adapter]) # system code, adapter code
+            sender.enableTransmit(0) # WiringPi pin 0 = pin 11 on the Pi 2
+
             if state == "on":
                 sender.switchOn()
             elif state == "off":
@@ -48,13 +66,6 @@ class PowerOutletSwitcher(ApplicationSession):
 
         yield self.register(switch_outlet, u'io.crossbar.examples.iot.devices.pi.poweroutlet.switch')
 
-
-        # # register methods on this object for remote calling via WAMP
-        # for proc in [self.trigger_sample, self.stop_sample, self.add_sample]:
-        #     uri = u'io.crossbar.examples.iot.devices.pi.{}.audioout.{}'.format(self._id, proc.__name__)
-        #     yield self.register(proc, uri)
-        #     log.msg("AudioOutputAdapter registered procedure {}".format(uri))
-    
 
 def get_serial():
     """

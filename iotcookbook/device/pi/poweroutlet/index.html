@@ -36,10 +36,10 @@
             console.log("toggle hit");
 
             if (state === "on") {
-               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", ["off"]);
+               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [3, "off"]);
                state = "off";
             } else {
-               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", ["on"]);
+               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [3, "on"]);
                state = "on";
             }
          }
