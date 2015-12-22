@@ -25,9 +25,14 @@
 
       // the WAMP connection to the Router
       //
+      // var connection = new autobahn.Connection({
+      //    url: 'ws://demo.crossbar.io:8080', // replace with URL of WAMP router if this doesn't serve the file
+      //    realm: "realm1"
+      // });
+
       var connection = new autobahn.Connection({
-         url: 'ws://demo.crossbar.io:8080', // replace with URL of WAMP router if this doesn't serve the file
-         realm: "realm1"
+         url: 'ws://192.168.1.136:8080/ws', // replace with URL of WAMP router if this doesn't serve the file
+         realm: "iot_cookbook"
       });
 
 
@@ -46,10 +51,10 @@
             var adapter = parseInt(document.getElementById("adapter").value, 10);
 
             if (state === "on") {
-               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [adapter, "off"]);
+               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [adapter, "off"]).then(session.log, session.log);
                state = "off";
             } else {
-               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [adapter, "on"]);
+               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [adapter, "on"]).then(session.log, session.log);
                state = "on";
             }
          }
