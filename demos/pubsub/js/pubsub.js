@@ -14,14 +14,27 @@
 var demoRealm = "crossbardemo";
 var demoPrefix = "io.crossbar.demo";
 
+// the URL of the WAMP Router (Crossbar.io)
+//
 var wsuri;
 if (document.location.origin == "file://") {
-   wsuri = "ws://127.0.0.1:8080/ws";
+   wsuri = "ws://127.0.0.1:8080";
 
 } else {
    wsuri = (document.location.protocol === "http:" ? "ws:" : "wss:") + "//" +
                document.location.host + "/ws";
 }
+
+var httpUri;
+
+if (document.location.origin == "file://") {
+   httpUri = "http://127.0.0.1:8080/lp";
+
+} else {
+   httpUri = (document.location.protocol === "http:" ? "http:" : "https:") + "//" +
+               document.location.host + "/lp";
+}
+
 
 var sess;
 var windowUrl;
@@ -72,22 +85,32 @@ function switchChannel(newChannelId) {
 }
 
 
-function updateStatusline(status) {
-   $(".statusline").text(status);
+function updateStatusline(statusline) {
+   $(".statusline").html(statusline);
 };
 
 var connection = null;
 function connect() {
 
-   connection = new autobahn.Connection({
-      url: wsuri,
-      realm: demoRealm,
-      max_retries: 30,
-      initial_retry_delay: 2
-      }
-   );
+   // the WAMP connection to the Router
+   //
+   var connection = new autobahn.Connection({
+      // url: wsuri,
+      transports: [
+         {
+            'type': 'websocket',
+            'url': wsuri
+         },
+         {
+            'type': 'longpoll',
+            'url': httpUri
+         }
+      ],
+      realm: "crossbardemo"
+   });
 
-   connection.onopen = function (session) {
+
+   connection.onopen = function (session, details) {
 
       sess = session;
 
@@ -95,7 +118,11 @@ function connect() {
 
       setupDemo();
 
-      updateStatusline("Connected to " + wsuri);
+      if (details.x_cb_node_id) {
+         updateStatusline("Connected to node <strong>" + details.x_cb_node_id + "</strong> at " + wsuri);
+      } else {
+         updateStatusline("Connected to " + wsuri);
+      }
 
       // establish prefix to use for shorter URL notation
       // sess.prefix("api", channelBaseUri);
@@ -109,14 +136,12 @@ function connect() {
       if(typeof(afterAuth) !== "undefined" ) {
          afterAuth(); // only exists in colorpicker demo
       }
-
-
-
    };
 
    connection.onclose = function() {
       sess = null;
       console.log("connection closed ", arguments);
+      updateStatusline("Disconnected");
    }
 
    connection.open();
