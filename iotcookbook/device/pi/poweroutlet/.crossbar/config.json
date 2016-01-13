@@ -42,6 +42,14 @@
                }
             }
          ]
+      },
+      {
+         "type": "guest",
+         "executable": "sudo python",
+         "arguments": ["poweroutlet_pi.py"],
+         "options": {
+            "workdir": ".."
+         }
       }
    ]
 }

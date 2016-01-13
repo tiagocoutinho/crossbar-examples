@@ -2,21 +2,57 @@
 <html lang="en">
 <head>
    <meta charset="UTF-8">
-   <title>Raspberry Pi Power Outlet Switch</title>
+   <title>ColuTherm Switch</title>
+
+   <style>
+      body {
+         font-family: "Arial", sans-serif;
+      }
+
+
+      h1 {
+         color: red;
+         padding-top: 1.5em;
+         font-size: 5vw;
+      }
+
+
+      section {
+         width: 90%;
+         max-width: 500px;
+         background-color: #ddd;
+         margin: 0 auto;
+         text-align: center;
+      }
+
+      button {
+         width: 60%;
+         margin: 5%;
+         background-color: #fff;
+         border: 3px solid #666;
+         font-size: 5vw;
+         color: #444;
+         box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.2);
+      }
+
+   </style>
 </head>
 <body>
-   <h1>
-      Raspberry Pi Power Outlet Switch
-   </h1>
+   <section>
+      <h1>
+         ColuTherm Switch
+      </h1>
 
+      <button id="outlet_01">1</button>
 
-   <label for="adapter">Adapter</label>
-   <input id="adapter" type="text" value="3">
+      <button id="outlet_02">2</button>
 
-   <button id="toggle">Toggle Outlet</button>
-
+      <button id="outlet_03">3</button>   
+   </section>
+   
+   
    <p>
-      The simple switchable power outlets we are using do not provide a back channel. Because of this no power state (on/off) can be shown for the outlets!
+      Powered by <a href="http://crossbar.io">Crossbar.io</a>
    </p>
 
    <script src="http://autobahn.s3.amazonaws.com/autobahnjs/latest/autobahn.min.jgz"></script>
@@ -30,10 +66,31 @@
       //    realm: "realm1"
       // });
 
+      // var connection = new autobahn.Connection({
+      //    url: 'ws://192.168.1.136:8080/ws', // replace with URL of WAMP router if this doesn't serve the file
+      //    realm: "iot_cookbook"
+      // });
+
+
+      // the URL of the WAMP Router (Crossbar.io)
+      //
+      var wsuri;
+      if (document.location.origin == "file://") {
+         wsuri = "ws://127.0.0.1:8080/ws";
+
+      } else {
+         wsuri = (document.location.protocol === "http:" ? "ws:" : "wss:") + "//" +
+                     document.location.host + "/ws";
+      }
+
+
+      // the WAMP connection to the Router
+      //
       var connection = new autobahn.Connection({
-         url: 'ws://192.168.1.136:8080/ws', // replace with URL of WAMP router if this doesn't serve the file
+         url: wsuri,
          realm: "iot_cookbook"
       });
+
 
 
       // fired when connection is established and session attached
@@ -41,29 +98,42 @@
       connection.onopen = function (sess, details) {
 
          session = sess;
-         var state = "off";
+         var state = ["off", "off", "off"];
+
+         document.getElementById("outlet_01").onclick = function() {
+            toggle(1);
+         }
+
+         document.getElementById("outlet_02").onclick = function() {
+            toggle(2);
+         }
+
+         document.getElementById("outlet_03").onclick = function() {
+            toggle(3);
+         }
 
          console.log("connected");
 
-         var toggle = function() {
-            console.log("toggle hit");
-
-            var adapter = parseInt(document.getElementById("adapter").value, 10);
+         var toggle = function(outlet) {
+            console.log("toggle hit", outlet);
 
             if (state === "on") {
-               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [adapter, "off"]).then(session.log, session.log);
+               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [outlet, "off"]).then(session.log, session.log);
                state = "off";
+               document.getElementById("outlet_0" + outlet).style.backgroundColor = "#fff";
             } else {
-               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [adapter, "on"]).then(session.log, session.log);
+               session.call("io.crossbar.examples.iot.devices.pi.poweroutlet.switch", [outlet, "on"]).then(session.log, session.log);
                state = "on";
+               document.getElementById("outlet_0" + outlet).style.backgroundColor = "red";
             }
+
+
+
          }
 
          
 
-         document.getElementById("toggle").addEventListener("click", toggle);
-
-         console.log("post");
+         // document.getElementById("toggle").addEventListener("click", toggle);
 
       };
 
