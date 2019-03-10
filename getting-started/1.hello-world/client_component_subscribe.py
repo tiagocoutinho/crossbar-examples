@@ -41,7 +41,7 @@ def joined(session, details):
     print("session ready")
 
     def oncounter(count):
-        print("event received: {0}", count)
+        print("event received: {0}".format(count))
 
     try:
         yield session.subscribe(oncounter, topic)
